@@ -1,6 +1,11 @@
 /**
  * constants.ts
- * Centralized Stellar network constants for both Frontend and Backend.
+ * Centralized Stellar network constants for Frontend and Backend.
+ *
+ * The single source of truth lives in `shared/constants.ts` (kept free of
+ * Vite build-tool globals so Node processes can import it too). This module
+ * re-exports it so the frontend's public API (`src/lib/stellar.ts` and every
+ * component) is unchanged.
  */
 
 // Use process.env for Node.js and import.meta.env for Vite
@@ -8,9 +13,9 @@ const getEnv = (key: string, fallback: string) => {
   if (typeof process !== 'undefined' && process.env && process.env[key]) {
     return process.env[key]
   }
-  // @ts-ignore
+  // @ts-expect-error -- import.meta.env is provided by Vite at build time.
   if (typeof import.meta !== 'undefined' && import.meta.env && import.meta.env[`VITE_${key}`]) {
-    // @ts-ignore
+    // @ts-expect-error -- import.meta.env is provided by Vite at build time.
     return import.meta.env[`VITE_${key}`]
   }
   return fallback
@@ -25,6 +30,12 @@ export const HORIZON_TESTNET = 'https://horizon-testnet.stellar.org'
 export const HORIZON_MAINNET = 'https://horizon.stellar.org'
 export const HORIZON_URL = IS_MAINNET ? HORIZON_MAINNET : HORIZON_TESTNET
 
+export function getHorizonUrl(network: string): string {
+  return network === 'PUBLIC' || network === 'stellar:mainnet'
+    ? HORIZON_MAINNET
+    : HORIZON_TESTNET
+}
+
 // Explorer
 export const STELLAR_EXPERT_TESTNET = 'https://stellar.expert/explorer/testnet'
 export const STELLAR_EXPERT_MAINNET = 'https://stellar.expert/explorer/public'
@@ -32,12 +43,18 @@ export const STELLAR_EXPERT_URL = IS_MAINNET ? STELLAR_EXPERT_MAINNET : STELLAR_
 
 // USDC Issuer
 export const USDC_ISSUER_TESTNET = 'GBBD45IF6LWK7P7MDEVSCWR7DPUWV3NY3DTQEVFL4NAT4AQH3ZLLFLA5'
-export const USDK_ISSUER_MAINNET = 'GA5ZSEJYB37JRC5AVCIA5MOP4RHTM335X2KGX3IHOJAPP5RE34K4KZVN'
+export const USDC_ISSUER_MAINNET = 'GA5ZSEJYB37JRC5AVCIA5MOP4RHTM335X2KGX3IHOJAPP5RE34K4KZVN'
 export const USDC_ISSUER = IS_MAINNET ? USDC_ISSUER_MAINNET : USDC_ISSUER_TESTNET
 
+// USDC Asset Code
+export const USDC_ASSET_CODE = 'USDC'
+
+// Trustline instructions
+export const TRUSTLINE_INSTRUCTIONS_URL = 'https://developers.stellar.org/docs/learn/fundamentals/stellar-data-structures/accounts#trustlines'
+
 // USDC Soroban Contract (for x402)
-export const USDK_CONTRACT_TESTNET = 'CBIELTK6YBZJU5UP2WWQEUCYKLPU6AUMZ2BQ4WWFEIE3USCIHMXQDAMA'
-export const USDK_CONTRACT_MAINNET = 'CCW67TSZV3SSS2HXMBQ5JFGCKJ^XZM7UQUWUZPUTHXSTZLEO7EJJUST'
+export const USDC_CONTRACT_TESTNET = 'CBIELTK6YBZJU5U2WWQEUCYKLPU6AUNZ2B4QWWFEIE3USCIHMXQDAMA'
+export const USDC_CONTRACT_MAINNET = 'CCW67TSZV3SSS2HXMBQ5JFGCKJNXKZM7UQUWUZPUTHXSTZLEO7EJJUST'
 export const USDC_CONTRACT = IS_MAINNET ? USDC_CONTRACT_MAINNET : USDC_CONTRACT_TESTNET
 
 // Payments
